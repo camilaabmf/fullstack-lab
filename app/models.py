@@ -1,26 +1,33 @@
 """Modelos relacionais que serão completados na atividade 2."""
-
-from sqlalchemy import Integer
+import datetime
+from sqlalchemy import Integer, String, Date, ForeignKey, UniqueConstraint, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
 
-
 class Event(Base):
     __tablename__ = "events"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    # Complete os campos title, date e capacity e suas restrições.
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    capacity: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    __table_args__ = (CheckConstraint("capacity > 0"),)
+    
 
 
 class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    # Complete os campos name e email.
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    email: Mapped[str] = mapped_column(String, nullable=False)
+
 
 
 class Registration(Base):
     __tablename__ = "registrations"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    event_id: Mapped[int] = mapped_column(Integer)
-    user_id: Mapped[int] = mapped_column(Integer)
-    # Relacione event_id e user_id às tabelas corretas e impeça duplicatas.
+    event_id: Mapped[int] = mapped_column(Integer, ForeignKey("events.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
+
+    __table_args__ = (UniqueConstraint("event_id", "user_id"),)
